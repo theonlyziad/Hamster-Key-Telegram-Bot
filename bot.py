@@ -2,12 +2,12 @@ import subprocess
 import os
 import logging
 import asyncio
-from telegram import Update
+from telegram import Update, ChatMember
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from datetime import datetime
 import server
 
-# Paste Token Here if you don't wanna put it in an env. variable for some reason
+# Telegram Token
 TOKEN_INSECURE = "7537444054:AAE5PY_MRDEBGWdrm78xS133E8PpC_ygjJo"
 
 if os.name == 'posix':
@@ -16,30 +16,46 @@ elif os.name == 'nt':
     TOKEN = subprocess.run(["echo", "%HAMSTER_BOT_TOKEN%"], text=True, capture_output=True, shell=True).stdout.strip()
     TOKEN = "" if TOKEN == "%HAMSTER_BOT_TOKEN%" else TOKEN
 
+# Telegram channel username
+CHANNEL_USERNAME = '@zeedtek'
 
+# List of authorized users if the bot is in exclusive mode
 AUTHORIZED_USERS = []
 EXCLUSIVE = False
 
+# Setup logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.WARN
 )
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Should make this a Database probably
-    # with open(f'{os.path.dirname(__file__)}/user_ids','a') as file:
-    #     file.write(f"{datetime.now().strftime('[%Y-%m-%d %H:%M:%S]')} {update.effective_chat.first_name}, {update.effective_chat.username}, {update.effective_chat.id}\n")
+    user_id = update.effective_user.id
+    
+    # Check if the user is a member of the channel
+    try:
+        member = await context.bot.get_chat_member(CHANNEL_USERNAME, user_id)
+        if member.status in ['member', 'administrator', 'creator']:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome! You are already a member of the channel.")
+        else:
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=f"You need to join the channel {CHANNEL_USERNAME} to use this bot.")
+            return
+    except Exception as e:
+        logging.error(f"Error checking membership: {e}")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"You need to join the channel {CHANNEL_USERNAME} to use this bot.")
+        return
+
     await context.bot.send_message(chat_id=update.effective_chat.id, text="🐹")
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="The Commands are:\n*/cube*\n*/train*\n*/fluf*\n*/merge*\n*/twerk*\n*/poly*\n*/trim*\n*/cafe*\n*/zoo*\n*/gang*\n*/all*\nThese will generate 4 keys for their respective games\.",
+        text="The available commands are:\n*/cube*\n*/train*\n*/fluf*\n*/merge*\n*/twerk*\n*/poly*\n*/trim*\n*/cafe*\n*/zoo*\n*/gang*\n*/all*\nThese will generate 4 keys for their respective games\.",
         parse_mode='MARKDOWNV2'
-        )
+    )
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
         text="You can also set how many keys are generated\. For example, */cube 8* will generate *EIGHT* keys for the cube game\.",
         parse_mode='MARKDOWNV2'
-        )
+    )
 
 async def game_handler(
     update: Update, 
@@ -51,7 +67,7 @@ async def game_handler(
     if EXCLUSIVE and not update.effective_chat.id in AUTHORIZED_USERS:
         await context.bot.send_message(
             chat_id=update.effective_chat.id, 
-            text="Clone this bot from the [github](https://github.com/Emperor-One/Hamster-Key-Telegram-Bot) repo and follow the instructions to create your own bot\.",
+            text="Clone this bot from [github](https://github.com/Emperor-One/Hamster-Key-Telegram-Bot) and follow the instructions to create your own bot\.",
             parse_mode='MARKDOWNV2'
         )
         with open(f'{os.path.dirname(__file__)}/unauthorized','a') as file:
@@ -60,16 +76,15 @@ async def game_handler(
             file.write(f"{datetime.now().strftime('[%Y-%m-%d %H:%M:%S]')} {unauthorized_message}\n")
         return
 
-    # delay for the /all command
     await asyncio.sleep(delay)
     server.logger.info(f"Delay for {delay} seconds")
-
 
     server.logger.info(f"Generating for client: {update.effective_chat.first_name} - {update.effective_chat.username}: {update.effective_chat.id}")
     if not all:
         await context.bot.send_message(chat_id=update.effective_chat.id, text="🐹")
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Generating\.\.\.", parse_mode='MARKDOWNV2')
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"This will only take a moment\.\.\.", parse_mode='MARKDOWNV2')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Join to @zeedtek channel for updates\.", parse_mode='MARKDOWNV2')
 
     no_of_keys = int(context.args[0]) if context.args else 4
     keys = await server.run(chosen_game=chosen_game, no_of_keys=no_of_keys)
@@ -110,13 +125,10 @@ async def all(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text="🐹")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Currently generating for all games\.\.\.", parse_mode='MARKDOWNV2')
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Come Back in about 5\-10 minutes\.", parse_mode='MARKDOWNV2')
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Join to @zeedtek channel for updates\.", parse_mode='MARKDOWNV2')
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Come back in about 5\-10 minutes\.", parse_mode='MARKDOWNV2')
 
-    # Wait a certain number of seconds between each game
     tasks = [game_handler(update, context, i + 1, True, i * 30) for i in range(8)]
     await asyncio.gather(*tasks)
-
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(TOKEN or TOKEN_INSECURE).build()
@@ -130,9 +142,8 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('poly', poly, block=False))
     application.add_handler(CommandHandler('trim', trim, block=False))
     application.add_handler(CommandHandler('zoo', zoo, block=False))
-    application.add_handler(CommandHandler('fluf', zoo, block=False))
-
+    application.add_handler(CommandHandler('fluf', all, block=False))
+    
     application.add_handler(CommandHandler('all', all, block=False))
-
 
     application.run_polling()
