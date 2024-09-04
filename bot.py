@@ -8,7 +8,7 @@ from datetime import datetime
 import server
 
 # Paste Token Here if you don't wanna put it in an env. variable for some reason
-TOKEN_INSECURE = "<PASTE YOUR TELEGRAM BOT TOKEN  HERE>"
+TOKEN_INSECURE = "6884609553:AAEOLvhIvUzIqe21CAG6SFYtDX9XY-GGnm8"
 
 if os.name == 'posix':
     TOKEN = subprocess.run(["printenv", "HAMSTER_BOT_TOKEN"], text=True, capture_output=True).stdout.strip()
