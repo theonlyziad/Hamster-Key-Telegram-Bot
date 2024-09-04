@@ -32,7 +32,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="🐹")
     await context.bot.send_message(
         chat_id=update.effective_chat.id,
-        text="The Commands are:\n*/cube*\n*/train*\n*/merge*\n*/twerk*\n*/poly*\n*/trim*\n*/cafe*\n*/zoo*\n*/gang*\n*/all*\nThese will generate 4 keys for their respective games\.",
+        text="The Commands are:\n*/cube*\n*/train*\n*/fluf*\n*/merge*\n*/twerk*\n*/poly*\n*/trim*\n*/cafe*\n*/zoo*\n*/gang*\n*/all*\nThese will generate 4 keys for their respective games\.",
         parse_mode='MARKDOWNV2'
         )
     await context.bot.send_message(
