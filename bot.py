@@ -8,7 +8,7 @@ from datetime import datetime
 import server
 
 # Paste Token Here if you don't wanna put it in an env. variable for some reason
-TOKEN_INSECURE = "6884609553:AAEOLvhIvUzIqe21CAG6SFYtDX9XY-GGnm8"
+TOKEN_INSECURE = "7537444054:AAE5PY_MRDEBGWdrm78xS133E8PpC_ygjJo"
 
 if os.name == 'posix':
     TOKEN = subprocess.run(["printenv", "HAMSTER_BOT_TOKEN"], text=True, capture_output=True).stdout.strip()
@@ -99,6 +99,9 @@ async def trim(update: Update, context: ContextTypes.DEFAULT_TYPE, all = False):
 async def zoo(update: Update, context: ContextTypes.DEFAULT_TYPE, all = False):
     await game_handler(update, context, chosen_game=7, all=all)
 
+async def fluf(update: Update, context: ContextTypes.DEFAULT_TYPE, all = False):
+    await game_handler(update, context, chosen_game=8, all=all)
+
 async def all(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if EXCLUSIVE and not update.effective_chat.id in AUTHORIZED_USERS:
         return
@@ -108,6 +111,7 @@ async def all(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="🐹")
     await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Currently generating for all games\.\.\.", parse_mode='MARKDOWNV2')
     await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Come Back in about 5\-10 minutes\.", parse_mode='MARKDOWNV2')
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Join to @zeedtek channel for updates\.", parse_mode='MARKDOWNV2')
 
     # Wait a certain number of seconds between each game
     tasks = [game_handler(update, context, i + 1, True, i * 30) for i in range(8)]
@@ -126,6 +130,7 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('poly', poly, block=False))
     application.add_handler(CommandHandler('trim', trim, block=False))
     application.add_handler(CommandHandler('zoo', zoo, block=False))
+    application.add_handler(CommandHandler('fluf', zoo, block=False))
 
     application.add_handler(CommandHandler('all', all, block=False))
 
