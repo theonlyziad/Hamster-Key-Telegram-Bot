@@ -39,7 +39,7 @@ async def game_handler(
     if EXCLUSIVE and not update.effective_chat.id in AUTHORIZED_USERS:
         await context.bot.send_message(
             chat_id=update.effective_chat.id, 
-            text="Clone this bot from the [github](https://github.com/Emperor-One/Hamster-Key-Telegram-Bot) repo and follow the instructions to create your own bot\\.",
+            text="Clone this bot from zeedtek telegram channel.",
             parse_mode='MARKDOWNV2'
         )
         with open(f'{os.path.dirname(__file__)}/unauthorized','a') as file:
@@ -55,9 +55,9 @@ async def game_handler(
 
     server.logger.info(f"Generating for client: {update.effective_chat.first_name} - {update.effective_chat.username}: {update.effective_chat.id}")
     if not all:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="🐹")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="🐹🔑")
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Generating\\.\\.\\.", parse_mode='MARKDOWNV2')
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"This will only take a moment\\.\\.\\.", parse_mode='MARKDOWNV2')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"This will only take a moment , follow Updates channel while you wait @zeedtek\\.\\.\\.", parse_mode='MARKDOWNV2')
 
     if server.GAMES[chosen_game]['name'] == "Fluff Crusade":
         no_of_keys = 8
