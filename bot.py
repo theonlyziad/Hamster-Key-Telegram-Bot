@@ -15,7 +15,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Replace 'YOUR_CHANNEL_USERNAME' with your channel's username (without @)
-CHANNEL_USERNAME = '@your_channel_username'
+CHANNEL_USERNAME = '@zeedtek'
 
 # Check if the user is part of the Telegram channel
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
