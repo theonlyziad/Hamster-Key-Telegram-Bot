@@ -3,18 +3,16 @@ import os
 import logging
 import asyncio
 from telegram import Update, ChatMember
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, CallbackContext
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from datetime import datetime
 import server
 from config import TOKEN, AUTHORIZED_USERS, EXCLUSIVE, USE_PROXIES
 
-# Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
-
+# Logging configuration
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Replace 'YOUR_CHANNEL_USERNAME' with your channel's username (without @)
+# Replace with your channel's username
 CHANNEL_USERNAME = '@zeedtek'
 
 # Check if the user is part of the Telegram channel
@@ -26,11 +24,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         member = await context.bot.get_chat_member(CHANNEL_USERNAME, user_id)
         if member.status in ['member', 'administrator', 'creator']:
-            await context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome back! You are already a member of the channel.")
             # Sending bot command instructions after membership check
+            await context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome back! You are already a member of the channel.")
+            await context.bot.send_message(chat_id=update.effective_chat.id, text="🐹")
             await context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text="The Commands are:\n*/cube*\n*/train*\n*/merge*\n*/twerk*\n*/poly*\n*/trim*\n*/cafe*\n*/zoo*\n*/tile*\n*/fluff*\n*/stone*\n*/all*\nThese will generate 4 keys for their respective games\\. /fluff will generate 8 keys\\.",
+                text="The Commands are:\n*/cube*\n*/train*\n*/merge*\n*/twerk*\n*/poly*\n*/trim*\n*/cafe*\n*/zoo*\n*/tile*\n"
+                     "*/fluff*\n*/stone*\n*/bounce*\n*/hide*\n*/all*\nThese will generate 4 keys for their respective"
+                     " games\\. */fluff* will generate 8 keys\\.",
                 parse_mode='MARKDOWNV2'
             )
             await context.bot.send_message(
@@ -49,7 +50,7 @@ async def game_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, chose
     if EXCLUSIVE and update.effective_chat.id not in AUTHORIZED_USERS:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="Clone this bot from zeedtek telegram channel.",
+            text="Clone this bot from the [github](https://github.com/Emperor-One/Hamster-Key-Telegram-Bot) repo and follow the instructions to create your own bot in seconds\\.",
             parse_mode='MARKDOWNV2'
         )
         with open(f'{os.path.dirname(__file__)}/unauthorized', 'a') as file:
@@ -64,12 +65,14 @@ async def game_handler(update: Update, context: ContextTypes.DEFAULT_TYPE, chose
 
     server.logger.info(f"Generating for client: {update.effective_chat.first_name} - {update.effective_chat.username}: {update.effective_chat.id}")
     if not all:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text="🐹🔑")
+        await context.bot.send_message(chat_id=update.effective_chat.id, text="🐹")
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Generating\\.\\.\\.", parse_mode='MARKDOWNV2')
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"This will only take a moment , follow Updates channel while you wait @zeedtek\\.\\.\\.", parse_mode='MARKDOWNV2')
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"This will only take a moment\\.\\.\\.", parse_mode='MARKDOWNV2')
 
-    if server.GAMES[chosen_game]['name'] == "Fluff Crusade":
+    if server.GAMES[chosen_game]['name'] == "Fluff Crusade" and not context.args:
         no_of_keys = 8
+    elif server.GAMES[chosen_game]['name'] == "Fluff Crusade" and context.args:
+        no_of_keys = int(context.args[0])
     else:
         no_of_keys = int(context.args[0]) if context.args else 4
     
@@ -111,6 +114,12 @@ async def fluff(update: Update, context: ContextTypes.DEFAULT_TYPE, all=False):
 async def stone(update: Update, context: ContextTypes.DEFAULT_TYPE, all=False):
     await game_handler(update, context, chosen_game=10, all=all)
 
+async def bounce(update: Update, context: ContextTypes.DEFAULT_TYPE, all=False):
+    await game_handler(update, context, chosen_game=11, all=all)
+
+async def hide(update: Update, context: ContextTypes.DEFAULT_TYPE, all=False):
+    await game_handler(update, context, chosen_game=12, all=all)
+
 # Command for generating all games
 async def all(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if EXCLUSIVE and update.effective_chat.id not in AUTHORIZED_USERS:
@@ -143,6 +152,9 @@ if __name__ == '__main__':
     application.add_handler(CommandHandler('tile', tile, block=False))
     application.add_handler(CommandHandler('fluff', fluff, block=False))
     application.add_handler(CommandHandler('stone', stone, block=False))
+    application.add_handler(CommandHandler('bounce', bounce, block=False))
+    application.add_handler(CommandHandler('hide', hide, block=False))
+
     application.add_handler(CommandHandler('all', all, block=False))
 
     # Start polling to handle updates
